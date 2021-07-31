@@ -2,6 +2,7 @@ import os
 import requests
 
 SHIP_ENGINE_API_KEY = os.environ.get('SHIP_ENGINE_API_KEY', None)
+SHIP_ENGINE_HOST = 'https://api.shipengine.com'
 
 class APIKeyMissingError(Exception):
     pass
