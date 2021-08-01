@@ -19,16 +19,21 @@ class ShipEngine():
         return
     
     def put(self, url, data=None, json=None, **kwargs):
-        pprint(f"url: {url}")
-        pprint(f"data: {data}")
-        pprint(f"json: {json}")
-        pprint(f"headers: {self.headers}")
+        # pprint(f"url: {url}")
+        # pprint(f"data: {data}")
+        # pprint(f"json: {json}")
+        # pprint(f"headers: {self.headers}")
         return self.session.put(url=url, data=data, json=json, headers=self.headers, **kwargs)
     
     def get(self, url, params=None, **kwargs):
+        # pprint(f"url: {url}")
+        # pprint(f"params: {params}")
+        # pprint(f"headers: {self.headers}")
         return self.session.get(url=url, params=params, headers=self.headers, **kwargs)
 
     def delete(self, url, **kwargs):
+        # pprint(f"url: {url}")
+        # pprint(f"headers: {self.headers}")
         return self.session.delete(url=url, headers=self.headers, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
@@ -39,5 +44,9 @@ class ShipEngine():
         return self.session.post(url=url, data=data, json=json, headers=self.headers, **kwargs)
 
     def patch(self, url, data=None, json=None, **kwargs):
+        # pprint(f"url: {url}")
+        # pprint(f"data: {data}")
+        # pprint(f"json: {json}")
+        # pprint(f"headers: {self.headers}")
         return self.session.patch(url=url, data=data, json=json, headers=self.headers, **kwargs)
     
