@@ -155,91 +155,95 @@ def default_rate_id(ship_engine, default_shipment, default_carrier,rate_keys):
     return r.json()
 
 
-# @pytest.fixture
-# def batch_keys():
-#     keys = [
-#         "label_layout",
-#         "label_format",
-#         "batch_id",
-#         "batch_number",
-#         "external_batch_id",
-#         "batch_notes",
-#         "created_at",
-#         "processed_at",
-#         "errors",
-#         "warnings",
-#         "completed",
-#         "forms",
-#         "count",
-#         "batch_shipments_url","batch_labels_url",
-#         "label_download",
-#     ]
-#     return keys
+@pytest.fixture
+def batch_keys():
+    keys = [
+        "label_layout",
+        "label_format",
+        "batch_id",
+        "batch_number",
+        "external_batch_id",
+        "batch_notes",
+        "created_at",
+        "processed_at",
+        "errors",
+        "warnings",
+        "completed",
+        "forms",
+        "count",
+        "batch_shipments_url","batch_labels_url",
+        "label_download",
+    ]
+    return keys
 
-# @vcr.use_cassette('tests/vcr_cassettes/se-post_create_batch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
-# @pytest.fixture
-# def batch(ship_engine,default_shipment, default_rate_id, batch_keys):
-#     data = {
-#         "external_batch_id": "se-28529731",
-#         "batch_notes": "This is my batch",
-#         "shipment_ids": [
-#             default_shipment['shipments'][0]['shipment_id']
-#         ],
-#         "rate_ids": [
-#             default_rate_id['rate_response']['rates'][0]['rate_id']
-#         ],
-#         "warehouse_id": default_shipment['shipments'][0]['shipment_id']
-#     }
-#     r = ship_engine.post(url='https://api.shipengine.com/v1/batches',
-#             json=data,
-#     )
-#     pprint(data)
-#     pprint(r.json())
-#     assert r.status_code == SE_SUCCESS
-#     assert set(batch_keys).issubset(r.json().keys()), "All keys should be present."
-
-
-# @vcr.use_cassette('tests/vcr_cassettes/se-manual-delete.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
-# def test_ShipEngine_delete(ship_engine, batch):
-
-#     x = ship_engine.post(url='https://api.shipengine.com/v1/batches', 
-#         json=batch,
-#     )
-#     assert x.status_code == SE_SUCCESS
-
-#     r = ship_engine.delete(url='https://api.shipengine.com/v1/batches')
-
-#     assert r.status_code == SE_NO_CONTENT
-#     del x
-#     del r
+@vcr.use_cassette('tests/vcr_cassettes/se-post_create_batch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
+@pytest.fixture
+@pytest.mark.xfail
+def batch(ship_engine,default_shipment, default_rate_id, batch_keys):
+    data = {
+        "external_batch_id": "se-28529731",
+        "batch_notes": "This is my batch",
+        "shipment_ids": [
+            default_shipment['shipments'][0]['shipment_id']
+        ],
+        "rate_ids": [
+            default_rate_id['rate_response']['rates'][0]['rate_id']
+        ],
+        "warehouse_id": default_shipment['shipments'][0]['shipment_id']
+    }
+    r = ship_engine.post(url='https://api.shipengine.com/v1/batches',
+            json=data,
+    )
+    pprint(data)
+    pprint(r.json())
+    assert r.status_code == SE_SUCCESS
+    assert set(batch_keys).issubset(r.json().keys()), "All keys should be present."
 
 
-# @pytest.fixture
-# def put_keys():
-#     return ['score', 'address', 'entities']
+@vcr.use_cassette('tests/vcr_cassettes/se-manual-delete.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
+@pytest.mark.xfail
+def test_ShipEngine_delete(ship_engine, batch):
 
-# @vcr.use_cassette('tests/vcr_cassettes/se-manual-put.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
-# def test_ShipEngine_put(ship_engine, put_keys):
-#     """Tests ability for ShipEngine to put a request"""
-#     r = ship_engine.put(url='https://api.shipengine.com/v1/addresses/recognize', 
-#         json={"text": "Margie McMiller at 3800 North Lamar suite 200 in austin, tx.  The zip code there is 78652."}
-#     )
+    x = ship_engine.post(url='https://api.shipengine.com/v1/batches', 
+        json=batch,
+    )
+    assert x.status_code == SE_SUCCESS
 
-#     assert r.status_code == SE_SUCCESS
-#     assert set(put_keys).issubset(r.json().keys()), "All keys should be in the response."
+    r = ship_engine.delete(url='https://api.shipengine.com/v1/batches')
+
+    assert r.status_code == SE_NO_CONTENT
+    del x
+    del r
 
 
-# @pytest.fixture
-# def patch_keys():
-#     return ['currency','amount']
+@pytest.fixture
+def put_keys():
+    return ['score', 'address', 'entities']
 
-# @vcr.use_cassette('tests/vcr_cassettes/se-manual-patch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
-# def test_ShipEngine_patch(ship_engine, patch_keys):
-#     r = ship_engine.patch(url='https://api.shipengine.com/v1/insurance/shipsurance/add_funds', 
-#         json={
-#             'currency': 'usd',
-#             'amount': 0
-#         },
-#     )
-#     assert r.status_code == SE_SUCCESS ### This fails currently because of API Authorizaion failures, not code failures.
-#     assert set(patch_keys).issubset(r.json()[0].keys()), "All keys should be in the response."
+@vcr.use_cassette('tests/vcr_cassettes/se-manual-put.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
+@pytest.mark.xfail
+def test_ShipEngine_put(ship_engine, put_keys):
+    """Tests ability for ShipEngine to put a request"""
+    r = ship_engine.put(url='https://api.shipengine.com/v1/addresses/recognize', 
+        json={"text": "Margie McMiller at 3800 North Lamar suite 200 in austin, tx.  The zip code there is 78652."}
+    )
+
+    assert r.status_code == SE_SUCCESS
+    assert set(put_keys).issubset(r.json().keys()), "All keys should be in the response."
+
+
+@pytest.fixture
+def patch_keys():
+    return ['currency','amount']
+
+@vcr.use_cassette('tests/vcr_cassettes/se-manual-patch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
+@pytest.mark.xfail
+def test_ShipEngine_patch(ship_engine, patch_keys):
+    r = ship_engine.patch(url='https://api.shipengine.com/v1/insurance/shipsurance/add_funds', 
+        json={
+            'currency': 'usd',
+            'amount': 0
+        },
+    )
+    assert r.status_code == SE_SUCCESS ### This fails currently because of API Authorizaion failures, not code failures.
+    assert set(patch_keys).issubset(r.json()[0].keys()), "All keys should be in the response."
