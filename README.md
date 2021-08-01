@@ -7,6 +7,9 @@ be specified by setting an environment variable called SHIP_ENGINE_API_KEY.
 
 # Dependencies
 * Python >= 3.1
+* requests==2.11.1
+* vcrpy==1.10.3
+* pytest==3.0.3
 
 # License
 This library is distributed under GNU LGPL version 2.1, which can be found in the file "doc/LGPL". I reserve the right to place future versions of this library under a different license. https://www.gnu.org/copyleft/lesser.html
