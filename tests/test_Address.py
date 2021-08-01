@@ -132,6 +132,21 @@ def test_Parse_Address(address, parse_address, parse_expected_keys):
         pprint(set(parse_expected_keys).difference(r.json().keys()))
     assert set(parse_expected_keys).issubset(r.json()), "All keys should be present"
 
+def test_Parse_Address_malformed_input(address):
+    expected_exception = "The text parameter should be a dictionary."
+    with pytest.raises(Exception) as excinfo:
+        r = address.parse(text=None)
+    assert expected_exception in str(excinfo.value)
+    
+    with pytest.raises(Exception) as excinfo:
+        r = address.parse(text="")
+    assert expected_exception in str(excinfo.value)
+    
+    with pytest.raises(Exception) as excinfo:
+        r = address.parse(text={})
+    assert expected_exception in str(excinfo.value)
+    
+
 @pytest.fixture
 def validate_address():
     data = [
@@ -183,6 +198,7 @@ def validate_expected_keys():
         }
     ]
     return data[0].keys()
+
 @vcr.use_cassette('tests/vcr_cassettes/Address/validate-address.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 def test_Validate_Address(address, validate_address, validate_expected_keys):
     r = address.validate(address=validate_address)
@@ -193,3 +209,18 @@ def test_Validate_Address(address, validate_address, validate_expected_keys):
     if not set(validate_expected_keys).issubset(r.json()[0].keys()):
         pprint(set(validate_expected_keys).difference(r.json()[0].keys()))
     assert set(validate_expected_keys).issubset(r.json()[0].keys()), "All keys should be present."
+
+def test_Validate_Address_malformed_address(address):
+    expected_exception = "The address parameter should be a list containing a dictionary."
+    with pytest.raises(Exception) as excinfo:
+        r = address.validate(address=None)
+    assert expected_exception in str(excinfo.value)
+    
+    with pytest.raises(Exception) as excinfo:
+        r = address.validate(address="")
+    assert expected_exception in str(excinfo.value)
+    
+    with pytest.raises(Exception) as excinfo:
+        r = address.validate(address={})
+    assert expected_exception in str(excinfo.value)
+    

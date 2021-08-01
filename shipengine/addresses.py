@@ -116,7 +116,7 @@ class Address(ShipEngine):
         return self._address_residential_indicator
     
     def __repr__(self):
-        return f"<Address: {self.address_line1()}>"
+        return f"<Address: {self.address_line1}>"
     
     def to_json(self):
         return self.__dict__
@@ -126,7 +126,21 @@ class Address(ShipEngine):
         Validate address with ShipEngine API Call
         '''
         _endpoint = '/v1/addresses/validate'
-        print(f"address: {address}")
+        required_keys = [
+            'address_line1',
+            'city_locality',
+            'state_province',
+            'country_code',
+        ]
+        
+        if not isinstance(address, list) or \
+           len(address)== 0 or \
+           not isinstance(address[0], dict):
+            raise Exception(
+                "The address parameter should be a list containing a dictionary.\n"
+                "Required keys: " + str(required_keys)
+            )
+        
         return self.post(self.url+_endpoint, json=address)
 
     def parse(self, text=None, knowns={}):
@@ -134,14 +148,14 @@ class Address(ShipEngine):
         Parse Text string via ShipEngine API Call
         '''
         _endpoint = '/v1/addresses/recognize'
-        if text is None:
-            raise Exception("The text parameter should be a dictionary with the key text. It is None.")
-        if not isinstance(text, dict):
-            raise Exception(f"The text parameter should be a dictionary with the key text. It is {type(text)}.")
-        if "text" not in text.keys():
-            raise Exception(f"Key 'text' is required. keys: {text.keys()}")
-        data = text
-        if isinstance(knowns, dict):
-            data['address'] = knowns
-        return self.put(self.url+_endpoint, json=data)
+        required_keys = [
+            'text',
+        ]
+        if not isinstance(text, dict) or 'text' not in text.keys():
+            raise Exception(
+                "The text parameter should be a dictionary.\n"
+                "Required keys: " + str(required_keys)
+            )
+        
+        return self.put(self.url+_endpoint, json=text)
         
