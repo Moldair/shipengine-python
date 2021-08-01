@@ -2,10 +2,7 @@ from shipengine.addresses import Address
 from shipengine import SE_SUCCESS, SE_BAD_REQUEST, SE_CONFLICT, SE_CREATED
 from shipengine import SE_INTERNAL, SE_MULTI_STATUS, SE_NO_CONTENT
 from shipengine import SE_NOT_ALLOWED, SE_NOT_FOUND, SE_UNAUTHORIZED
-from pprint import pprint
-import pytest
 import vcr
-import json
 
 def test_Address_isverified():
     x = Address()
