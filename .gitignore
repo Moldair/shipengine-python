@@ -137,6 +137,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# VCR Cassettes
+tests/vcr_cassettes/
+
 # Virtual Env Shortcuts
 activate.bat
 deactivate.bat
