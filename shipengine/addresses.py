@@ -141,7 +141,8 @@ class Address(ShipEngine):
                 "Required keys: " + str(required_keys)
             )
         
-        return self.post(self.url+_endpoint, json=address)
+        response = self.post(self.url+_endpoint, json=address)
+        return response
 
     def parse(self, text=None, knowns={}):
         '''
@@ -157,5 +158,7 @@ class Address(ShipEngine):
                 "Required keys: " + str(required_keys)
             )
         
-        return self.put(self.url+_endpoint, json=text)
+        response = self.put(self.url+_endpoint, json=text)
+        
+        return response 
         
