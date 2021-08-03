@@ -55,11 +55,11 @@ def label_download_url():
     se = ShipEngine()
     r = se.post(url=se.url+"/v1/labels",json=labeljson)
     assert r.status_code == SE_SUCCESS
-    return r.json()['label_download']['pdf']
+    return str(r.json()['label_download']['pdf'])
 
 @pytest.fixture
 def label_download_endpoint(label_download_url):
-    return label_download_url.replace("https://api.shipengine.com/v1/downloads",'')
+    return label_download_url.replace('https://api.shipengine.com/v1/downloads','')
 
 @contextmanager
 def does_not_raise():
@@ -67,13 +67,14 @@ def does_not_raise():
 
 @vcr.use_cassette('tests/vcr_cassettes/Download/download_file.yml', 
                     filter_query_parameters=['api_key'], 
-                    filter_headers=['API-Key'])
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
 @pytest.mark.parametrize(
     "test_value, expectation",
     [
         ("", pytest.raises(ImproperDownloadParameter)),
-        ("/dir/subdir1/subdir2/filename", pytest.raises(ImproperDownloadParameter)),
-        ("/dir/subdir/filename", pytest.raises(FileNotFound404)),
+        ("/1/1/3TidbpFJOkm4RmWzQ-woyQ/label-147980607.pdf", pytest.raises(ImproperDownloadParameter)),
+        ("/1/9HYicTGmJEaIECkBSoH1_Q/label-51582669.pdf", pytest.raises(FileNotFound404)),
         (label_download_endpoint, does_not_raise())
     ],
 )
@@ -84,17 +85,17 @@ def test_download_file(sut, test_value, expectation):
 
 @vcr.use_cassette('tests/vcr_cassettes/Download/download_url.yml', 
                     filter_query_parameters=['api_key'], 
-                    filter_headers=['API-Key'])
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
 @pytest.mark.parametrize(
     "test_value, expectation",
     [
         ("", pytest.raises(ImproperDownloadParameter)),
         ("https://api.shipengine.com/v1/downloads/dir/subdir1/subdir2/filename", pytest.raises(ImproperDownloadParameter)),
         ("https://api.shipengine.com/v1/downloads/dir/subdir/filename", pytest.raises(FileNotFound404)),
-        (label_download_url, does_not_raise())
+        (label_download_url, does_not_raise()),
     ],
 )
 def test_download_url(sut, test_value, expectation):
-    
     with expectation:
         assert sut.download_url(url=test_value) is not None
