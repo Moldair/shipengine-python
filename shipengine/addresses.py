@@ -1,4 +1,3 @@
-from requests.models import StreamConsumedError
 from shipengine import SE_SUCCESS, ShipEngine
 from pprint import pprint
 
