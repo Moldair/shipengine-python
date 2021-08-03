@@ -209,7 +209,7 @@ def test_ShipEngine_delete(sut, batch):
     )
     assert x.status_code == SE_SUCCESS
 
-    r = ship_engine.delete(url='https://api.shipengine.com/v1/batches')
+    r = sut.delete(url='https://api.shipengine.com/v1/batches')
 
     assert r.status_code == SE_NO_CONTENT
     del x
@@ -222,9 +222,9 @@ def put_keys():
 
 @vcr.use_cassette('tests/vcr_cassettes/se-manual-put.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.mark.xfail
-def test_ShipEngine_put(ship_engine, put_keys):
+def test_ShipEngine_put(sut, put_keys):
     """Tests ability for ShipEngine to put a request"""
-    r = ship_engine.put(url='https://api.shipengine.com/v1/addresses/recognize', 
+    r = sut.put(url='https://api.shipengine.com/v1/addresses/recognize', 
         json={"text": "Margie McMiller at 3800 North Lamar suite 200 in austin, tx.  The zip code there is 78652."}
     )
 
