@@ -9,13 +9,13 @@ import vcr
 import shipengine
 
 @pytest.fixture
-def ship_engine():
+def sut():
     return ShipEngine()
 
-def test_ShipEngine(ship_engine):
+def test_ShipEngine(sut):
     """Tests ShipEngine base class can be created"""
     
-    assert isinstance(ship_engine.headers, dict)
+    assert isinstance(sut.headers, dict)
 
 @pytest.fixture
 def test_address():
@@ -42,8 +42,8 @@ def carrier_keys():
 
 @vcr.use_cassette('tests/vcr_cassettes/se-get_carriers.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.fixture
-def default_carrier(ship_engine,carrier_keys):
-    r = ship_engine.get(url='https://api.shipengine.com/v1/carriers')
+def default_carrier(sut,carrier_keys):
+    r = sut.get(url='https://api.shipengine.com/v1/carriers')
     assert r.status_code == SE_SUCCESS
     assert set(carrier_keys).issubset(r.json().keys()), "All keys should be in the response."
     return r.json()
@@ -51,9 +51,9 @@ def default_carrier(ship_engine,carrier_keys):
 ## Setup default Shipment and Post function
 @vcr.use_cassette('tests/vcr_cassettes/se-post_shipment.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.fixture
-def default_shipment(ship_engine):
+def default_shipment(sut):
     '''Create Default Shipment for testing'''
-    r = ship_engine.post(url='https://api.shipengine.com/v1/shipments', 
+    r = sut.post(url='https://api.shipengine.com/v1/shipments', 
         json={
             "shipments": [{
                 "service_code": "usps_priority_mail",
@@ -129,7 +129,7 @@ def rate_keys():
 
 @vcr.use_cassette('tests/vcr_cassettes/se_post_rates.yml',  filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.fixture
-def default_rate_id(ship_engine, default_shipment, default_carrier,rate_keys):
+def default_rate_id(sut, default_shipment, default_carrier,rate_keys):
     
     data = {
         "shipment_id": default_shipment['shipments'][0]['shipment_id'],
@@ -145,7 +145,7 @@ def default_rate_id(ship_engine, default_shipment, default_carrier,rate_keys):
                 "is_return": "false"
             }
     }
-    r = ship_engine.post(url='https://api.shipengine.com/v1/rates', 
+    r = sut.post(url='https://api.shipengine.com/v1/rates', 
         json=data
     )
     assert r.status_code == SE_SUCCESS
@@ -179,7 +179,7 @@ def batch_keys():
 @vcr.use_cassette('tests/vcr_cassettes/se-post_create_batch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.fixture
 @pytest.mark.xfail
-def batch(ship_engine,default_shipment, default_rate_id, batch_keys):
+def batch(sut,default_shipment, default_rate_id, batch_keys):
     data = {
         "external_batch_id": "se-28529731",
         "batch_notes": "This is my batch",
@@ -191,7 +191,7 @@ def batch(ship_engine,default_shipment, default_rate_id, batch_keys):
         ],
         "warehouse_id": default_shipment['shipments'][0]['shipment_id']
     }
-    r = ship_engine.post(url='https://api.shipengine.com/v1/batches',
+    r = sut.post(url='https://api.shipengine.com/v1/batches',
             json=data,
     )
     pprint(data)
@@ -202,9 +202,9 @@ def batch(ship_engine,default_shipment, default_rate_id, batch_keys):
 
 @vcr.use_cassette('tests/vcr_cassettes/se-manual-delete.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.mark.xfail
-def test_ShipEngine_delete(ship_engine, batch):
+def test_ShipEngine_delete(sut, batch):
 
-    x = ship_engine.post(url='https://api.shipengine.com/v1/batches', 
+    x = sut.post(url='https://api.shipengine.com/v1/batches', 
         json=batch,
     )
     assert x.status_code == SE_SUCCESS
@@ -238,8 +238,8 @@ def patch_keys():
 
 @vcr.use_cassette('tests/vcr_cassettes/se-manual-patch.yml', filter_query_parameters=['api_key'], filter_headers=['API-Key'])
 @pytest.mark.xfail
-def test_ShipEngine_patch(ship_engine, patch_keys):
-    r = ship_engine.patch(url='https://api.shipengine.com/v1/insurance/shipsurance/add_funds', 
+def test_ShipEngine_patch(sut, patch_keys):
+    r = sut.patch(url='https://api.shipengine.com/v1/insurance/shipsurance/add_funds', 
         json={
             'currency': 'usd',
             'amount': 0

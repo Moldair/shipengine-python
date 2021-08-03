@@ -3,24 +3,27 @@ from shipengine import SE_SUCCESS, SE_BAD_REQUEST, SE_CONFLICT, SE_CREATED
 from shipengine import SE_INTERNAL, SE_MULTI_STATUS, SE_NO_CONTENT
 from shipengine import SE_NOT_ALLOWED, SE_NOT_FOUND, SE_UNAUTHORIZED
 import vcr
+import pytest
 
-def test_Address_isverified():
-    x = Address()
-    x._status = 'verified'
+@pytest.fixture
+def sut():
+    return Address()
 
-    assert x.isverified()
+def test_Address_isverified(sut):
+    sut._status = 'verified'
 
-def test_Address_isnotverified():
-    x = Address()
-    x._status = 'unverified'
+    assert sut.isverified()
 
-    assert not x.isverified()
+def test_Address_isnotverified(sut):
+    sut._status = 'unverified'
+
+    assert not sut.isverified()
 
 
 @vcr.use_cassette('tests/vcr_cassettes/Address/validate-address.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_validate_address():
+def test_validate_address(sut):
     test_address = [
         {
             "name": "Mickey and Minnie Mouse",
@@ -34,7 +37,6 @@ def test_validate_address():
         }
     ]
 
-    sut = Address()
     sut.validate(address=test_address)
 
     assert sut.isverified()
@@ -42,10 +44,9 @@ def test_validate_address():
 @vcr.use_cassette('tests/vcr_cassettes/Address/parse-address.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_Address_parse_address():
+def test_Address_parse_address(sut):
     test_address = "Margie McMiller at 3800 North Lamar suite 200 in austin, tx.  The zip code there is 78652."
     
-    sut = Address()
     sut.parse(text=test_address)
 
     assert not sut.isverified()  # The test address is an unverifiable address.

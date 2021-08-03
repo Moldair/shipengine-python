@@ -8,26 +8,27 @@ import vcr
 import json
 
 
+@pytest.fixture
+def sut():
+    return Carrier()
+
 @vcr.use_cassette('tests/vcr_cassettes/Carriers/list_carriers.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_list_carriers_added_to_account():
-    sut = Carrier()
-
+def test_list_carriers_added_to_account(sut):
     assert sut.list_carriers()
 
 
 @vcr.use_cassette('tests/vcr_cassettes/Carriers/get_carrier_by_id.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_get_carrier_by_id():
+def test_get_carrier_by_id(sut):
     carrierids = [
         ('se-28529731', False),
         ('se-568501', True),
         ('se-568502', True),
         ('se-568503', True),
     ]
-    sut = Carrier()
 
     for id, result in carrierids:
         if result:
@@ -39,13 +40,12 @@ def test_get_carrier_by_id():
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
 @pytest.mark.xfail
-def test_add_funds_to_carrier():
+def test_add_funds_to_carrier(sut):
     test_data = [
         ('se-568501', 0, "usd", True),
         ('se-568501', 0, "dkk", False),
     ]
 
-    sut = Carrier()
     for data in test_data:
         pprint(data)
         response = sut.add_funds_to_carrier(id=data[0], amount=data[1], currency=data[2])
@@ -57,7 +57,7 @@ def test_add_funds_to_carrier():
 @vcr.use_cassette('tests/vcr_cassettes/Carriers/get_carrier_options.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_get_carrier_options():
+def test_get_carrier_options(sut):
     carriers = [
         ('se-568501', [
                 {
@@ -85,7 +85,6 @@ def test_get_carrier_options():
         ),
     ]
     
-    sut = Carrier()
 
     for carrier in carriers:
         assert set(carrier[1][0].keys()).issubset(sut.get_carrier_options(id=carrier[0])[0].keys())
@@ -93,7 +92,7 @@ def test_get_carrier_options():
 @vcr.use_cassette('tests/vcr_cassettes/Carriers/list_carrier_package_types.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_list_carrier_package_types():
+def test_list_carrier_package_types(sut):
     carriers = [
         ('se-568501', [
                 {
@@ -124,7 +123,6 @@ def test_list_carrier_package_types():
         ),
     ]
     
-    sut = Carrier()
 
     for carrier in carriers:
         assert set(carrier[1][0].keys()).issubset(sut.list_carrier_package_types(id=carrier[0])[0].keys())
@@ -132,7 +130,7 @@ def test_list_carrier_package_types():
 @vcr.use_cassette('tests/vcr_cassettes/Carriers/list_carrier_services.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'])
-def test_list_carrier_services():
+def test_list_carrier_services(sut):
     carriers = [
         ('se-568501', [
                 {
@@ -172,7 +170,6 @@ def test_list_carrier_services():
         ),
     ]
     
-    sut = Carrier()
 
     for carrier in carriers:
         assert set(carrier[1][0].keys()).issubset(sut.list_carrier_services(id=carrier[0])[0].keys())
