@@ -1,3 +1,4 @@
+from shipengine import shipments
 from shipengine.shipments import Shipment
 from shipengine import SE_SUCCESS, SE_BAD_REQUEST, SE_CONFLICT, SE_CREATED
 from shipengine import SE_INTERNAL, SE_MULTI_STATUS, SE_NO_CONTENT
@@ -197,27 +198,455 @@ def test_parse_shipping_info(sut,test_value,test_value2, expectation):
     with expectation:
         assert sut.parse_shipping_info(text=test_value,shipment=test_value2) is not None
 
+@vcr.use_cassette('tests/vcr_cassettes/Shipment/update_shipment_by_id.yml', 
+                    filter_query_parameters=['api_key'], 
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
+@pytest.mark.parametrize(
+    "test_value, test_value2, expectation",
+    [
+        (
+            "se-28529731",
+            {
+                "carrier_id": "se-28529731",
+                "service_code": "usps_first_class_mail",
+                "external_order_id": "string",
+                "items": [],
+                "tax_identifiers": [
+                    {
+                    "taxable_entity_type": "shipper",
+                    "identifier_type": "vat",
+                    "issuing_authority": "string",
+                    "value": "string"
+                    }
+                ],
+                "external_shipment_id": "string",
+                "ship_date": "2018-09-23T00:00:00.000Z",
+                "ship_to": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "ship_from": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "warehouse_id": "se-28529731",
+                "return_to": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "confirmation": "none",
+                "customs": {
+                    "contents": "merchandise",
+                    "non_delivery": "return_to_sender",
+                    "customs_items": []
+                },
+                "advanced_options": {
+                    "bill_to_account": "null",
+                    "bill_to_country_code": "CA",
+                    "bill_to_party": "recipient",
+                    "bill_to_postal_code": "null",
+                    "contains_alcohol": "false",
+                    "delivered_duty_paid": "false",
+                    "dry_ice": "false",
+                    "dry_ice_weight": {
+                    "value": 0,
+                    "unit": "pound"
+                    },
+                    "non_machinable": "false",
+                    "saturday_delivery": "false",
+                    "use_ups_ground_freight_pricing": "null",
+                    "freight_class": 77.5,
+                    "custom_field1": "null",
+                    "custom_field2": "null",
+                    "custom_field3": "null",
+                    "origin_type": "pickup",
+                    "shipper_release": "null",
+                    "collect_on_delivery": {
+                    "payment_type": "any",
+                    "payment_amount": {
+                        "currency": "usd",
+                        "amount": 0
+                    }
+                    }
+                },
+                "origin_type": "pickup",
+                "insurance_provider": "none",
+                "order_source_code": "amazon_ca",
+                "packages": [
+                    {
+                    "package_code": "small_flat_rate_box",
+                    "weight": {
+                        "value": 0,
+                        "unit": "pound"
+                    },
+                    "dimensions": {
+                        "unit": "inch",
+                        "length": 0,
+                        "width": 0,
+                        "height": 0
+                    },
+                    "insured_value": {
+                        "0": {
+                        "currency": "usd",
+                        "amount": 0
+                        },
+                        "currency": "usd",
+                        "amount": 0
+                    },
+                    "label_messages": {
+                        "reference1": "null",
+                        "reference2": "null",
+                        "reference3": "null"
+                    },
+                    "external_package_id": "string"
+                    }
+                ],
+                "validate_address": "no_validation"
+            }
+            ,returns_true()
+        ),
+        (
+            "",
+            None, 
+            pytest.raises(InvalidParameters)
+        ),
+        (
+            "",
+            {
+                "carrier_id": "se-28529731",
+                "service_code": "usps_first_class_mail",
+                "external_order_id": "string",
+                "items": [],
+                "tax_identifiers": [
+                    {
+                    "taxable_entity_type": "shipper",
+                    "identifier_type": "vat",
+                    "issuing_authority": "string",
+                    "value": "string"
+                    }
+                ],
+                "external_shipment_id": "string",
+                "ship_date": "2018-09-23T00:00:00.000Z",
+                "ship_to": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "ship_from": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "warehouse_id": "se-28529731",
+                "return_to": {
+                    "name": "John Doe",
+                    "phone": "+1 204-253-9411 ext. 123",
+                    "company_name": "The Home Depot",
+                    "address_line1": "1999 Bishop Grandin Blvd.",
+                    "address_line2": "Unit 408",
+                    "address_line3": "Building #7",
+                    "city_locality": "Winnipeg",
+                    "state_province": "Manitoba",
+                    "postal_code": "78756-3717",
+                    "country_code": "CA",
+                    "address_residential_indicator": "no"
+                },
+                "confirmation": "none",
+                "customs": {
+                    "contents": "merchandise",
+                    "non_delivery": "return_to_sender",
+                    "customs_items": []
+                },
+                "advanced_options": {
+                    "bill_to_account": "null",
+                    "bill_to_country_code": "CA",
+                    "bill_to_party": "recipient",
+                    "bill_to_postal_code": "null",
+                    "contains_alcohol": "false",
+                    "delivered_duty_paid": "false",
+                    "dry_ice": "false",
+                    "dry_ice_weight": {
+                    "value": 0,
+                    "unit": "pound"
+                    },
+                    "non_machinable": "false",
+                    "saturday_delivery": "false",
+                    "use_ups_ground_freight_pricing": "null",
+                    "freight_class": 77.5,
+                    "custom_field1": "null",
+                    "custom_field2": "null",
+                    "custom_field3": "null",
+                    "origin_type": "pickup",
+                    "shipper_release": "null",
+                    "collect_on_delivery": {
+                    "payment_type": "any",
+                    "payment_amount": {
+                        "currency": "usd",
+                        "amount": 0
+                    }
+                    }
+                },
+                "origin_type": "pickup",
+                "insurance_provider": "none",
+                "order_source_code": "amazon_ca",
+                "packages": [
+                    {
+                    "package_code": "small_flat_rate_box",
+                    "weight": {
+                        "value": 0,
+                        "unit": "pound"
+                    },
+                    "dimensions": {
+                        "unit": "inch",
+                        "length": 0,
+                        "width": 0,
+                        "height": 0
+                    },
+                    "insured_value": {
+                        "0": {
+                        "currency": "usd",
+                        "amount": 0
+                        },
+                        "currency": "usd",
+                        "amount": 0
+                    },
+                    "label_messages": {
+                        "reference1": "null",
+                        "reference2": "null",
+                        "reference3": "null"
+                    },
+                    "external_package_id": "string"
+                    }
+                ],
+                "validate_address": "no_validation"
+            }, 
+            pytest.raises(InvalidParameters)
+        ),
+    ],
+)
+def test_update_shipment_by_id(sut,test_value,test_value2, expectation):
+    with expectation:
+        assert sut.update_shipment_by_id(shipment_id=test_value,data=test_value2) is not None
+
+@vcr.use_cassette('tests/vcr_cassettes/Shipment/cancel_shipment_by_id.yml', 
+                    filter_query_parameters=['api_key'], 
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
+@pytest.mark.parametrize(
+    "test_value, expectation",
+    [
+        ("se-28529731", returns_true()),
+        ("se-285297312222222222223", returns_false()),
+        ("se-28529731222222222222332234", pytest.raises(InvalidParameters)),
+        ("", pytest.raises(InvalidParameters)),
+    ],
+)
+def test_cancel_shipment_by_id(sut,test_value, expectation):
+    with expectation:
+        assert sut.cancel_shipment_by_id(shipment_id=test_value) is not None
+
+@vcr.use_cassette('tests/vcr_cassettes/Shipment/add_tag.yml', 
+                    filter_query_parameters=['api_key'], 
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
+@pytest.mark.parametrize(
+    "test_value, test_value2, expectation",
+    [
+        ("se-28529731", "Fragile", returns_true()),
+        ("se-285297312222222222223", "International", returns_false()),
+        ("se-28529731222222222222332234", "Fragile", pytest.raises(InvalidParameters)),
+        ("se-28529731", "", pytest.raises(InvalidParameters)),
+        ("", "", pytest.raises(InvalidParameters)),
+    ],
+)
+def test_add_tag(sut, test_value, test_value2, expectation):
+    with expectation:
+        assert sut.add_tag(shipment_id=test_value, tag_name=test_value2) is not None
+
+@vcr.use_cassette('tests/vcr_cassettes/Shipment/remove_tag.yml', 
+                    filter_query_parameters=['api_key'], 
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
+@pytest.mark.parametrize(
+    "test_value, test_value2, expectation",
+    [
+        ("se-28529731", "Fragile", returns_true()),
+        ("se-285297312222222222223", "International", returns_false()),
+        ("se-28529731222222222222332234", "Fragile", pytest.raises(InvalidParameters)),
+        ("se-28529731", "", pytest.raises(InvalidParameters)),
+        ("", "", pytest.raises(InvalidParameters)),
+    ],
+)
+def test_remove_tag(sut, test_value, test_value2, expectation):
+    with expectation:
+        assert sut.remove_tag(shipment_id=test_value, tag_name=test_value2) is not None
 
 
-
-
-
-
-
-# @vcr.use_cassette('tests/vcr_cassettes/Shipment/create_shipments.yml', 
-#                     filter_query_parameters=['api_key'], 
-#                     filter_headers=['API-Key'],
-#                     record_mode='new_episodes')
-# @pytest.mark.parametrize(
-#     "test_value, expectation",
-#     [
-#         ("", pytest.raises(ImproperDownloadParameter)),
-#         ("/1/1/3TidbpFJOkm4RmWzQ-woyQ/label-147980607.pdf", pytest.raises(ImproperDownloadParameter)),
-#         ("/1/9HYicTGmJEaIECkBSoH1_Q/label-51582669.pdf", pytest.raises(FileNotFound404)),
-#         (label_download_endpoint, does_not_raise())
-#     ],
-# )
-# def test_create_shipments(sut, test_value, expectation):
+@vcr.use_cassette('tests/vcr_cassettes/Shipment/create_shipments.yml', 
+                    filter_query_parameters=['api_key'], 
+                    filter_headers=['API-Key'],
+                    record_mode='new_episodes')
+@pytest.mark.parametrize(
+    "test_value, expectation",
+    [
+        ("", pytest.raises(InvalidParameters)),
+        ({
+                    'carrier_id': "se-123890",
+                    'service_code': "usps_first_class_mail",
+                    'ship_to': {
+                        'name': 'John Doe',
+                        'phone':'1234567890',
+                        'address_line1':'123 Easy Street',
+                        'city_locality': 'Beverly Hills',
+                        'state_province': 'CA',
+                        'postal_code': '90210',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'ship_from': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'packages': [
+                        {
+                            'package_code': 'package',
+                            'weight': {
+                                'value': 16.0,
+                                'unit': "ounce"
+                            },
+                        },
+                    ],
+                },
+            returns_true()
+        ),
+        (
+            [
+                {
+                    'carrier_id': "se-123890",
+                    'service_code': "usps_first_class_mail",
+                    'ship_to': {
+                        'name': 'John Doe',
+                        'phone':'1234567890',
+                        'address_line1':'123 Easy Street',
+                        'city_locality': 'Beverly Hills',
+                        'state_province': 'CA',
+                        'postal_code': '90210',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'ship_from': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'packages': [
+                        {
+                            'package_code': 'package',
+                            'weight': {
+                                'value': 16.0,
+                                'unit': "ounce"
+                            },
+                        },
+                    ],
+                },
+            ], 
+            returns_true()
+        ),
+        (
+            [
+                {
+                    'service_code': "usps_first_class_mail",
+                    'ship_to': {
+                        'name': 'John Doe',
+                        'phone':'1234567890',
+                        'address_line1':'123 Easy Street',
+                        'city_locality': 'Beverly Hills',
+                        'state_province': 'CA',
+                        'postal_code': '90210',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'ship_from': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                    'packages': [
+                        {
+                            'package_code': 'package',
+                            'weight': {
+                                'value': 16.0,
+                                'unit': "ounce"
+                            },
+                        },
+                    ],
+                },
+            ], 
+            returns_false()
+        ),
+    ],
+)
+def test_create_shipments(sut, test_value, expectation):
     
-#     with expectation:
-#         assert sut.create_shipment(filespec=test_value) is not None
+    with expectation:
+        assert sut.create_shipment(shipments=test_value) is not None

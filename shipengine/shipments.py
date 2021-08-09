@@ -1,5 +1,5 @@
 from requests.models import Response
-from shipengine import InvalidParameters, SE_NOT_FOUND, SE_SUCCESS, ShipEngine
+from shipengine import InvalidParameters, SE_MULTI_STATUS, SE_NOT_FOUND, SE_NO_CONTENT, SE_SUCCESS, ShipEngine
 from pprint import pprint
 
 
@@ -83,6 +83,7 @@ class Shipment(ShipEngine):
                                         # Warning: The external_shipment_id is limited to 50 characters. 
                                         # Any additional characters will be truncated.
         '''
+        # TODO: remove external_shipment_id from params dictionary and add it as a keyword
         if isinstance(params, dict):
             _endpoint = False
             if 'external_shipment_id' in params.keys():
@@ -118,6 +119,7 @@ class Shipment(ShipEngine):
                                 # Example: se-28529731
                                 # Shipment ID
         '''
+        # TODO: remove shipment_id from params dictionary and add it as a keyword
         if isinstance(params, dict):
             _endpoint = False
             if 'shipment_id' in params.keys():
@@ -163,6 +165,7 @@ class Shipment(ShipEngine):
                 pagesize        # integer <int32> >= 1
 
         '''
+        # TODO: remove shipment_id from params dictionary and add it as a keyword
         if isinstance(params, dict):
             _endpoint = False
             if 'shipment_id' in params.keys():
@@ -199,6 +202,7 @@ class Shipment(ShipEngine):
                 created_at -- Datetime filter to exclude shipements created before a certain time.
 
         '''
+        # TODO: remove shipment_id from params dictionary and add it as a keyword
         if isinstance(params, dict):
             _endpoint = False
             if 'shipment_id' in params.keys():
@@ -356,4 +360,351 @@ class Shipment(ShipEngine):
         if response == SE_SUCCESS:
             return True
         else:
+            return False
+
+    def update_shipment_by_id(self, shipment_id=None, data=None):
+        '''Queries ShipEngine.com and updates shipment info.
+
+        Returns True if the request was successful.  Response data is stored in Shipment.response.
+        Returns False if an error is encoutered. Error data is stored in Shipment.response.
+
+        Required path parameters:
+            shipment_id         # string (se_id) [ 1 .. 25 ] characters ^se(-[a-z0-9]+)+$
+                                # Example: se-28529731
+                                # Shipment ID
+
+        Request data schema: application/json
+            Required Keys: ['ship_to','ship_from'] See ShipEngine API for more details.
+
+            carrier_id	            # string [ 1 .. 25 ] characters ^se(-[a-z0-9]+)+$
+                                    # The carrier account that is billed for the shipping charges
+
+            service_code	        # string ^[a-z0-9]+(_[a-z0-9-]+)* ?$
+                                    # The carrier service used to ship the package, such as fedex_ground, 
+                                    # usps_first_class_mail, flat_rate_envelope, etc.
+
+            external_order_id	    # string Nullable
+                                    # ID that the Order Source assigned
+
+            items                   # Array of objects
+                                    # Default: []
+                                    # Describe the packages included in this shipment as related to 
+                                    # potential metadata that was imported from external order sources
+
+            tax_identifiers	        # Array of objects Nullable
+
+            external_shipment_id	# string <= 50 characters Nullable
+                                    # You can optionally use this field to store your own 
+                                    # identifier for this shipment.
+
+                                    # Warning: The external_shipment_id is limited to 50 characters. 
+                                    # Any additional characters will be truncated.
+
+            ship_date               # string <date-time> 
+                                    # ^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[-+]\d{2}:\d{2}))?$
+                                    # The date that the shipment was (or will be) shippped. ShipEngine 
+                                    # will take the day of week into consideration. For example, 
+                                    # if the carrier does not operate on Sundays, then a package that 
+                                    # would have shipped on Sunday will ship on Monday instead.
+
+            ship_to                 # required
+                                    # object
+                                    # The recipient's mailing address
+
+            ship_from               # required
+                                    # object
+                                    # The shipment's origin address. If you frequently ship from the 
+                                    # same location, consider creating a warehouse. Then you can 
+                                    # simply specify the warehouse_id rather than the complete 
+                                    # address each time.
+
+            warehouse_id	        # string [ 1 .. 25 ] characters Nullable ^se(-[a-z0-9]+)+$
+                                    # Default: null
+                                    # The warehouse that the shipment is being shipped from. Either 
+                                    # warehouse_id or ship_from must be specified.
+
+            return_to               # object
+                                    # The return address for this shipment. 
+                                    # Defaults to the ship_from address.
+
+            confirmation            # string
+                                    # Default: "none"
+                                    # Enum: "none" "delivery" "signature" "adult_signature" 
+                                    #       "direct_signature" "delivery_mailed"
+                                    # The type of delivery confirmation that is required 
+                                    # for this shipment.
+
+            customs                 # object Nullable
+                                    # Default: null
+                                    # Customs information. This is usually only needed for 
+                                    # international shipments.
+
+            advanced_options        # object
+                                    # Advanced shipment options. These are entirely optional.
+
+            origin_type             # string Nullable
+                                    # Enum: "pickup" "drop_off"
+                                    # Indicates if the package will be picked up or dropped 
+                                    # off by the carrier
+
+            insurance_provider      # string
+                                    # Default: "none"
+                                    # Enum: "none" "shipsurance" "carrier" "third_party"
+                                    # The insurance provider to use for any insured packages 
+                                    # in the shipment.
+
+            order_source_code       # string
+                                    # Enum: "amazon_ca" "amazon_us" "brightpearl" 
+                                    #       "channel_advisor" "cratejoy" "ebay" "etsy" "jane" 
+                                    #       "groupon_goods" "magento" "paypal" "seller_active"
+                                    #       "shopify" "stitch_labs" "squarespace" "three_dcart"
+                                    #        "tophatter" "walmart" "woo_commerce" "volusion"
+                                    # The order sources that are supported by ShipEngine
+
+            packages                # Array of objects non-empty
+                                    # The packages in the shipment.
+                                    # Note: Some carriers only allow one package per shipment. 
+                                    # If you attempt to create a multi-package shipment for a 
+                                    # carrier that doesn't allow it, an error will be returned.
+
+            validate_address        # string
+                                    # Default: "no_validation"
+                                    # Enum: "no_validation" "validate_only" "validate_and_clean"
+                                    # The possible validate address values
+        '''
+        if not isinstance(shipment_id, str) or shipment_id == "":
+            raise InvalidParameters
+        _endpoint = "/v1/shipments/{shipment_id}"
+        if not isinstance(data, dict):
+            raise InvalidParameters
+        response = self.put(self.url+_endpoint,json=data)
+        self.response = response.json()
+        if response == SE_SUCCESS:
+            return True
+        else:
+            return False
+
+    def cancel_shipment_by_id(self, shipment_id=None):
+        '''Queries ShipEngine.com to mark a shipment as canceled.
+
+        Mark a shipment cancelled, if it is no longer needed or being used by your 
+        organized. Any label associated with the shipment needs to be voided first.
+        An example use case would be if a batch label creation job is going to run 
+        at a set time and only queries pending shipments. Marking a shipment as 
+        cancelled would remove it from this process.
+
+        Returns True on sucessful request.
+        Returns False if errors are encountered. Error stored in Shipment.response.
+
+        Required path parameters:
+            shipment_id         # string (se_id) [ 1 .. 25 ] characters ^se(-[a-z0-9]+)+$
+                                # Example: se-28529731
+                                # Shipment ID
+        
+        '''
+        if isinstance(shipment_id, str):
+            if len(shipment_id) < 1 or len(shipment_id) > 25:
+                raise InvalidParameters
+        _endpoint = f"/v1/shipments/{shipment_id}/cancel"
+        response = self.put(self.url+_endpoint)
+        if response.status_code == SE_NO_CONTENT:
+            return True
+        else:
+            self.response = response.json()
+            return False
+
+    def create_shipment(self, shipments=None):
+        '''Create one or multiple shipments.
+
+        Returns True is object creation is successful.
+        Returns False if errors are encountered.
+        Response data stored in Shipment.response.
+
+        Required keywords:
+            shipments           # Array of objects non-empty
+                                # A list of shipment objects to be created.
+
+
+                Array -- Required items = ['carrier_id', 'service_code', 'ship_to', 'ship_from']
+                validate_address	# string
+                                    # Default: "no_validation"
+                                    # Enum: "no_validation" 
+                                    #       "validate_only" 
+                                    #       "validate_and_clean"
+                                    # The possible validate address values
+
+                carrier_id          # required
+                                    # string [ 1 .. 25 ] characters 
+                                    # ^se(-[a-z0-9]+)+$
+                                    # The carrier account that is billed for 
+                                    # the shipping charges
+
+                service_code        # required
+                                    # string ^[a-z0-9]+(_[a-z0-9-]+)* ?$
+                                    # The carrier service used to ship the package, 
+                                    # such as fedex_ground, usps_first_class_mail, 
+                                    # flat_rate_envelope, etc.
+
+                external_order_id	# string Nullable
+                                    # ID that the Order Source assigned
+
+                items	            # Array of objects
+                                    # Default: []
+                                    # Describe the packages included in this shipment 
+                                    # as related to potential metadata that was 
+                                    # imported from external order sources
+
+                tax_identifiers	    # Array of objects Nullable
+
+                external_shipment_id	
+                                    # string <= 50 characters Nullable
+                                    # You can optionally use this field to store your 
+                                    # own identifier for this shipment.
+                                    # Warning: The external_shipment_id is limited to 50 characters. 
+                                    # Any additional characters will be truncated.
+
+                ship_date	        # string <date-time> 
+                                    # ^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[-+]\d{2}:\d{2}))?$
+                                    # The date that the shipment was (or will be) shippped. 
+                                    # ShipEngine will take the day of week into consideration. 
+                                    # For example, if the carrier does not operate on Sundays, then 
+                                    # a package that would have shipped on Sunday will ship on 
+                                    # Monday instead.
+
+                ship_to             # required
+                                    # object
+                                    # The recipient's mailing address
+
+                ship_from           # required
+                                    # object
+                                    # The shipment's origin address. If you frequently ship from the 
+                                    # same location, consider creating a warehouse. Then you can simply
+                                    # specify the warehouse_id rather than the complete address each time.
+
+                warehouse_id	    # string [ 1 .. 25 ] characters Nullable ^se(-[a-z0-9]+)+$
+                                    # Default: null
+                                    # The warehouse that the shipment is being shipped from. 
+                                    # Either warehouse_id or ship_from must be specified.
+
+                return_to           # object
+                                    # The return address for this shipment. Defaults to the 
+                                    # ship_from address.
+
+                confirmation        # string
+                                    # Default: "none"
+                                    # Enum: "none" "delivery" "signature" "adult_signature" 
+                                    #       "direct_signature" "delivery_mailed"
+                                    # The type of delivery confirmation that is required for this shipment.
+
+                customs             # object Nullable
+                                    # Default: null
+                                    # Customs information. This is usually only needed 
+                                    # for international shipments.
+
+                advanced_options    # object
+                                    # Advanced shipment options. These are entirely optional.
+
+                origin_type         # string Nullable
+                                    # Enum: "pickup" "drop_off"
+                                    # Indicates if the package will be picked up or dropped 
+                                    # off by the carrier
+
+                insurance_provider  # string
+                                    # Default: "none"
+                                    # Enum: "none" "shipsurance" "carrier" "third_party"
+                                    # The insurance provider to use for any insured packages in the shipment.
+
+                order_source_code   # string
+                                    # Enum: "amazon_ca" "amazon_us" "brightpearl" "channel_advisor" 
+                                    #       "cratejoy" "ebay" "etsy" "jane" "groupon_goods" "magento" 
+                                    #       "paypal" "seller_active" "shopify" "stitch_labs" "squarespace" 
+                                    #       "three_dcart" "tophatter" "walmart" "woo_commerce" "volusion"
+                                    # The order sources that are supported by ShipEngine
+
+                packages            # Array of objects non-empty
+                                    # The packages in the shipment.
+                                    # Note: Some carriers only allow one package per shipment. If you 
+                                    # attempt to create a multi-package shipment for a carrier that doesn't 
+                                    # allow it, an error will be returned.
+        '''
+        # POST
+        if isinstance(shipments, dict):
+            shipments = [shipments]
+        if not isinstance(shipments, list):
+            raise InvalidParameters
+        _endpoint = f"/v1/shipments"
+        response = self.post(self.url+_endpoint, json=shipments)
+        self.response = response.json()
+        if response.status_code == SE_SUCCESS:
+            return True
+        else:
+            return False
+
+    def add_tag(self, shipment_id=None, tag_name=None):
+        '''Adds tag to an existing shipment object.
+
+        Returns True if object creation was successful.
+        Returns False if errors were encountered. Errors are stored in Shipment.response
+
+        Required path parameters:
+            shipment_id         # string (se_id) [ 1 .. 25 ] characters ^se(-[a-z0-9]+)+$
+                                # Example: se-28529731
+                                # Shipment ID
+            
+            tag_name            # string (tag_name) non-empty
+                                # Example: Fragile
+                                # Tags are arbitrary strings that you can use to categorize 
+                                # shipments. For example, you may want to use tags to 
+                                # distinguish between domestic and international shipments, 
+                                # or between insured and uninsured shipments. Or maybe you 
+                                # want to create a tag for each of your customers so you 
+                                # can easily retrieve every shipment for a customer.
+        '''
+        if not isinstance(shipment_id, str) or not isinstance(tag_name, str):
+            raise InvalidParameters
+        if len(shipment_id) < 0 or len(shipment_id) > 25:
+            raise InvalidParameters
+        if tag_name == "":
+            raise InvalidParameters
+        _endpoint = f"/v1/shipments/{shipment_id}/tags/{tag_name}"
+        response = self.post(self.url+_endpoint)
+        if response.status_code == SE_SUCCESS:
+            return True
+        else:
+            self.response = response.json()
+            return False
+        
+    def remove_tag(self, shipment_id=None, tag_name=None):
+        '''Remove an existing tag from the Shipment object
+        
+        Returns True if the request was successful.
+        Returns False if errors were encountered. Errors are stored in Shipment.response
+
+        Required path parameters:
+            shipment_id         # string (se_id) [ 1 .. 25 ] characters ^se(-[a-z0-9]+)+$
+                                # Example: se-28529731
+                                # Shipment ID
+            
+            tag_name            # string (tag_name) non-empty
+                                # Example: Fragile
+                                # Tags are arbitrary strings that you can use to categorize 
+                                # shipments. For example, you may want to use tags to 
+                                # distinguish between domestic and international shipments, 
+                                # or between insured and uninsured shipments. Or maybe you 
+                                # want to create a tag for each of your customers so you 
+                                # can easily retrieve every shipment for a customer.
+        '''
+        # DELETE
+        if not isinstance(shipment_id, str) or not isinstance(tag_name, str):
+            raise InvalidParameters
+        if len(shipment_id) < 0 or len(shipment_id) > 25:
+            raise InvalidParameters
+        if tag_name == "":
+            raise InvalidParameters
+        _endpoint = f"/v1/shipments/{shipment_id}/tags/{tag_name}"
+        response = self.delete(self.url+_endpoint)
+        if response.status_code == SE_NO_CONTENT:
+            return True
+        else:
+            self.response = response.json()
             return False
