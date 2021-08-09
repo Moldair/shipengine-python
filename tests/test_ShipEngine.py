@@ -2,6 +2,7 @@ from shipengine import ShipEngine
 from shipengine import SE_SUCCESS, SE_BAD_REQUEST, SE_CONFLICT, SE_CREATED
 from shipengine import SE_INTERNAL, SE_MULTI_STATUS, SE_NO_CONTENT
 from shipengine import SE_NOT_ALLOWED, SE_NOT_FOUND, SE_UNAUTHORIZED
+from shipengine import APIKeyMissingError,InvalidCurrency,ImproperDownloadParameter,FileNotFound404
 from pprint import pprint
 import pytest
 import vcr

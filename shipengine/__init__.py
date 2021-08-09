@@ -6,6 +6,18 @@ SHIP_ENGINE_HOST = 'https://api.shipengine.com'
 class APIKeyMissingError(Exception):
     pass
 
+class InvalidCurrency(Exception):
+    pass
+
+class ImproperDownloadParameter(Exception):
+    pass
+
+class InvalidParameters(Exception):
+    pass
+
+class FileNotFound404(Exception):
+    pass
+
 if SHIP_ENGINE_API_KEY is None:
     raise APIKeyMissingError(
         "Usage of this wrapper requires and API"

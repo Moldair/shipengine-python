@@ -9,8 +9,7 @@ SE_CURRENCY_CODES = (
     "eur",
     "nzd"
 )
-class InvalidCurrency(Exception):
-    pass
+
 
 class Carrier(ShipEngine):
 

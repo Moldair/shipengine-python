@@ -1,13 +1,9 @@
 from os import read, readlink
 from posixpath import split
 from shipengine import SE_BAD_REQUEST, SE_NOT_FOUND, SE_SUCCESS, ShipEngine
+from shipengine import ImproperDownloadParameter,FileNotFound404
 from pprint import pprint
 
-class ImproperDownloadParameter(Exception):
-    pass
-
-class FileNotFound404(Exception):
-    pass
 
 class Download(ShipEngine):
 
