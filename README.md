@@ -19,7 +19,6 @@ be specified by setting an environment variable called SHIP_ENGINE_API_KEY.
     * manifests
     * packages
     * rates
-    * shipments
     * tracking
     * warehouses
     * webhooks
@@ -30,11 +29,10 @@ be specified by setting an environment variable called SHIP_ENGINE_API_KEY.
     * manifests
     * packages
     * rates
-    * shipments
     * tracking
     * warehouses
     * webhooks
-    
+
 # License
 This library is distributed under GNU LGPL version 2.1, which can be found in the file "doc/LGPL". I reserve the right to place future versions of this library under a different license. https://www.gnu.org/copyleft/lesser.html
 
