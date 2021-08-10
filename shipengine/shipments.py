@@ -1,6 +1,4 @@
-from requests.models import Response
 from shipengine import InvalidParameters, SE_MULTI_STATUS, SE_NOT_FOUND, SE_NO_CONTENT, SE_SUCCESS, ShipEngine
-from pprint import pprint
 
 
 class Shipment(ShipEngine):
@@ -694,7 +692,6 @@ class Shipment(ShipEngine):
                                 # want to create a tag for each of your customers so you 
                                 # can easily retrieve every shipment for a customer.
         '''
-        # DELETE
         if not self.id_isvalid(id=shipment_id):
             raise InvalidParameters
         if not isinstance(tag_name, str):
