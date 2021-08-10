@@ -31,12 +31,12 @@ def returns_false():
 @pytest.mark.parametrize(
     "test_value, expectation",
     [
-        ("",  does_not_raise()),
+        ("",  returns_true()),
     ],
 )
 def test_list_warehouses(sut,test_value, expectation):
     with expectation:
-        assert sut.list_warehouses(params=test_value) is not None
+        assert sut.list_warehouses() is not None
 
 
 @vcr.use_cassette('tests/vcr_cassettes/Warehouse/create_warehouse.yml', 
@@ -44,42 +44,66 @@ def test_list_warehouses(sut,test_value, expectation):
                     filter_headers=['API-Key'],
                     record_mode='new_episodes')
 @pytest.mark.parametrize(
-    "test_value, test_value2, expectation",
+    "test_value, expectation",
     [
         (
-            "I have a 4oz package that's 5x10x14in, and I need to ship it to Margie McMiller at 3800 North Lamar suite 200 in austin, tx 78652. Please send it via USPS first class and require an adult signature. It also needs to be insured for $400.\n",
-            None, 
-            returns_true()
-        ),
-        (
-            "I have a 4oz package that's 5x10x14in, and I need to ship it to Margie McMiller at 3800 North Lamar suite 200 in austin, tx 78652. Please send it via USPS first class and require an adult signature. It also needs to be insured for $400.\n",
-            {"shipment": {
-                "service_code": "usps_first_class_mail",
-                "ship_from": {
-                    "company_name": "My Awesome Store",
-                    "phone": "555-555-5555",
-                    "address_line1": "587 Shotwell St.",
-                    "address_line2": "Suite 201",
-                    "city_locality": "San Francisco",
-                    "state_province": "CA",
-                    "postal_code": 94110,
-                    "country_code": "US",
-                    "address_residential_indicator": "yes"
+            {
+                'name': "Home",
+                'origin_address': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    },
+                'return_address': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
                     }
-                }
-            }
-            , returns_true()
+            }, returns_true()
         ),
         (
-            "",
-            None, 
-            pytest.raises(InvalidParameters)
+            {
+                'name': "Home",
+                'origin_address': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    }
+            }, returns_true()
         ),
+        ({'name': "Home"}, returns_false()),
+        ({'origin_address': {
+                        'name': 'ABC Company, LLC',
+                        'phone':'7890123456',
+                        'address_line1':'42 Answer way',
+                        'city_locality': 'Glasgow',
+                        'state_province': 'KY',
+                        'postal_code': '42141',
+                        'country_code': 'US',
+                        'address_residential_indicator': 'yes'                        
+                    }}, returns_false()),
+        ("", pytest.raises(InvalidParameters)),
+        ([], pytest.raises(InvalidParameters))
     ],
 )
-def test_create_warehouse(sut,test_value,test_value2, expectation):
+def test_create_warehouse(sut,test_value, expectation):
     with expectation:
-        assert sut.create_warehouse(text=test_value,shipment=test_value2) is not None
+        assert sut.create_warehouse(warehouse_data=test_value) is not None
 
 @vcr.use_cassette('tests/vcr_cassettes/Warehouse/get_warehouse_by_id.yml', 
                     filter_query_parameters=['api_key'], 
@@ -88,73 +112,24 @@ def test_create_warehouse(sut,test_value,test_value2, expectation):
 @pytest.mark.parametrize(
     "test_value, expectation",
     [
-        (
-            {
-                'name': "Home",
-                'origin_address': {
-                        'name': 'ABC Company, LLC',
-                        'phone':'7890123456',
-                        'address_line1':'42 Answer way',
-                        'city_locality': 'Glasgow',
-                        'state_province': 'KY',
-                        'postal_code': '42141',
-                        'country_code': 'US',
-                        'address_residential_indicator': 'yes'                        
-                    },
-                'return_address': {
-                        'name': 'ABC Company, LLC',
-                        'phone':'7890123456',
-                        'address_line1':'42 Answer way',
-                        'city_locality': 'Glasgow',
-                        'state_province': 'KY',
-                        'postal_code': '42141',
-                        'country_code': 'US',
-                        'address_residential_indicator': 'yes'                        
-                    }
-            }, returns_true()
-        ),
-        (
-            {
-                'name': "Home",
-                'origin_address': {
-                        'name': 'ABC Company, LLC',
-                        'phone':'7890123456',
-                        'address_line1':'42 Answer way',
-                        'city_locality': 'Glasgow',
-                        'state_province': 'KY',
-                        'postal_code': '42141',
-                        'country_code': 'US',
-                        'address_residential_indicator': 'yes'                        
-                    }
-            }, returns_true()
-        ),
-        ({'name': "Home"}, pytest.raises(InvalidParameters)),
-        ({'origin_address': {
-                        'name': 'ABC Company, LLC',
-                        'phone':'7890123456',
-                        'address_line1':'42 Answer way',
-                        'city_locality': 'Glasgow',
-                        'state_province': 'KY',
-                        'postal_code': '42141',
-                        'country_code': 'US',
-                        'address_residential_indicator': 'yes'                        
-                    }}, pytest.raises(InvalidParameters)),
+        ("se-2440256", returns_true()),
+        ("se-244025234234246", returns_false()),
         ("", pytest.raises(InvalidParameters)),
         ([], pytest.raises(InvalidParameters))
     ],
 )
 def test_get_warehouse_by_id(sut,test_value, expectation):
     with expectation:
-        assert sut.get_warehouse_by_id(params=test_value) is not None
+        assert sut.get_warehouse_by_id(warehouse_id=test_value) is not None
 
 @vcr.use_cassette('tests/vcr_cassettes/Warehouse/update_warehouse_by_id.yml', 
                     filter_query_parameters=['api_key'], 
                     filter_headers=['API-Key'],
                     record_mode='new_episodes')
 @pytest.mark.parametrize(
-    "test_value, expectation",
+    "test_value, test_value2, expectation",
     [
-        (
+        ("se-2440256",
             {
                 'name': "Home",
                 'origin_address': {
@@ -179,7 +154,7 @@ def test_get_warehouse_by_id(sut,test_value, expectation):
                     }
             }, returns_true()
         ),
-        (
+        ("se-2440256",
             {
                 'name': "Home",
                 'origin_address': {
@@ -194,8 +169,8 @@ def test_get_warehouse_by_id(sut,test_value, expectation):
                     }
             }, returns_true()
         ),
-        ({'name': "Home"}, pytest.raises(InvalidParameters)),
-        ({'origin_address': {
+        ("se-2440256", {'name': "Home"}, returns_false()),
+        ("se-2440256", {'origin_address': {
                         'name': 'ABC Company, LLC',
                         'phone':'7890123456',
                         'address_line1':'42 Answer way',
@@ -204,14 +179,14 @@ def test_get_warehouse_by_id(sut,test_value, expectation):
                         'postal_code': '42141',
                         'country_code': 'US',
                         'address_residential_indicator': 'yes'                        
-                    }}, pytest.raises(InvalidParameters)),
-        ("", pytest.raises(InvalidParameters)),
-        ([], pytest.raises(InvalidParameters))
+                    }}, returns_false()),
+        ("", "", pytest.raises(InvalidParameters)),
+        ("", [], pytest.raises(InvalidParameters))
     ],
 )
-def test_update_warehouse_by_id(sut,test_value, expectation):
+def test_update_warehouse_by_id(sut,test_value, test_value2, expectation):
     with expectation:
-        assert sut.update_warehouse_by_id(params=test_value) is not None
+        assert sut.update_warehouse_by_id(warehouse_id=test_value, warehouse_data=test_value2) is not None
 
 
 @vcr.use_cassette('tests/vcr_cassettes/Warehouse/delete_warehouse_by_id.yml', 
@@ -221,7 +196,7 @@ def test_update_warehouse_by_id(sut,test_value, expectation):
 @pytest.mark.parametrize(
     "test_value, expectation",
     [
-        ("se-28529731", returns_true()),
+        ("se-2440256", returns_true()),
         ("se-2852973165616843131384684613134", pytest.raises(InvalidParameters)),
         ("se-2852973100000000", returns_false()),
         ("", pytest.raises(InvalidParameters)),
@@ -230,4 +205,4 @@ def test_update_warehouse_by_id(sut,test_value, expectation):
 )
 def test_delete_warehouse_by_id(sut,test_value, expectation):
     with expectation:
-        assert sut.delete_warehouse_by_id(params=test_value) is not None
+        assert sut.delete_warehouse_by_id(warehouse_id=test_value) is not None
