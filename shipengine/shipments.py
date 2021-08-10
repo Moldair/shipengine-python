@@ -7,7 +7,8 @@ class Shipment(ShipEngine):
 
     def __init__(self):
         super().__init__()
-
+    
+    
     def list_shipments(self, params=None):
         '''Querys shipengine.com and retrieves shipments. Returned data is stored in Shipment.response variable.
 
@@ -49,7 +50,7 @@ class Shipment(ShipEngine):
                                 # The possible shipments sort by values
 
         '''
-        _endpoint = "/v1/downloads"
+        _endpoint = "/v1/shipments"
         
         if isinstance(params, dict):
             for k in params:
@@ -472,7 +473,7 @@ class Shipment(ShipEngine):
                                     # Enum: "no_validation" "validate_only" "validate_and_clean"
                                     # The possible validate address values
         '''
-        if not isinstance(shipment_id, str) or shipment_id == "":
+        if not self.id_isvalid(id=shipment_id):
             raise InvalidParameters
         _endpoint = "/v1/shipments/{shipment_id}"
         if not isinstance(data, dict):
@@ -502,9 +503,8 @@ class Shipment(ShipEngine):
                                 # Shipment ID
         
         '''
-        if isinstance(shipment_id, str):
-            if len(shipment_id) < 1 or len(shipment_id) > 25:
-                raise InvalidParameters
+        if not self.id_isvalid(id=shipment_id):
+            raise InvalidParameters
         _endpoint = f"/v1/shipments/{shipment_id}/cancel"
         response = self.put(self.url+_endpoint)
         if response.status_code == SE_NO_CONTENT:
@@ -660,9 +660,9 @@ class Shipment(ShipEngine):
                                 # want to create a tag for each of your customers so you 
                                 # can easily retrieve every shipment for a customer.
         '''
-        if not isinstance(shipment_id, str) or not isinstance(tag_name, str):
+        if not self.id_isvalid(id=shipment_id):
             raise InvalidParameters
-        if len(shipment_id) < 0 or len(shipment_id) > 25:
+        if not isinstance(tag_name, str):
             raise InvalidParameters
         if tag_name == "":
             raise InvalidParameters
@@ -695,9 +695,9 @@ class Shipment(ShipEngine):
                                 # can easily retrieve every shipment for a customer.
         '''
         # DELETE
-        if not isinstance(shipment_id, str) or not isinstance(tag_name, str):
+        if not self.id_isvalid(id=shipment_id):
             raise InvalidParameters
-        if len(shipment_id) < 0 or len(shipment_id) > 25:
+        if not isinstance(tag_name, str):
             raise InvalidParameters
         if tag_name == "":
             raise InvalidParameters
@@ -708,3 +708,4 @@ class Shipment(ShipEngine):
         else:
             self.response = response.json()
             return False
+    

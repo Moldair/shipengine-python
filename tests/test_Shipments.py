@@ -1,4 +1,3 @@
-from shipengine import shipments
 from shipengine.shipments import Shipment
 from shipengine import SE_SUCCESS, SE_BAD_REQUEST, SE_CONFLICT, SE_CREATED
 from shipengine import SE_INTERNAL, SE_MULTI_STATUS, SE_NO_CONTENT

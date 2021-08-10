@@ -17,7 +17,14 @@ class ShipEngine():
         self.session.params = {}
         self.session.params['api_key'] = SHIP_ENGINE_API_KEY
         return
-    
+
+    def id_isvalid(self, id=None):
+        if isinstance(id, str):
+            if len(id) >= 1 and len(id) <= 25:
+                if id[:3] == 'se-':
+                    return True
+        return False
+        
     def put(self, url, data=None, json=None, **kwargs):
         # pprint(f"url: {url}")
         # pprint(f"data: {data}")
