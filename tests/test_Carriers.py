@@ -10,7 +10,7 @@ import pytest
 
 @pytest.fixture
 def sut():
-    return Shipment()
+    return Carrier()
 
 
 @contextmanager
