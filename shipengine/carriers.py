@@ -1,4 +1,4 @@
-from shipengine import InvalidParameters, SE_SUCCESS, ShipEngine
+from shipengine import InvalidCurrency, InvalidParameters, SE_SUCCESS, ShipEngine
 from pprint import pprint
 
 SE_CURRENCY_CODES = (
